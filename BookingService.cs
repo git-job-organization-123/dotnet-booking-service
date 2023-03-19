@@ -99,7 +99,7 @@ namespace BookingService
             }
             catch (Exception ex)
             {
-                throw new WebFaultException<string>(ex.Message, HttpStatusCode.BadRequest);
+                throw new WebFaultException<string>(ex.Message, HttpStatusCode.Forbidden);
             }
 
             return new BookingResponse() {
