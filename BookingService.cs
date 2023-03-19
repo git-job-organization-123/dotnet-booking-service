@@ -70,8 +70,9 @@ namespace BookingService
 
         private static int index = 0;
 
-        private static string GenerateProductCode() {
-            index++;
+        private static string GenerateProductCode()
+        {
+            ++index;
             return "P" + index.ToString("D4");
         }
 
@@ -97,7 +98,7 @@ namespace BookingService
         }
 
         // Get DB products with same code as products and sum their price
-        private decimal getTotalPrice(List<Product> products) {
+        private static decimal getTotalPrice(List<Product> products) {
             return products
                 .Join(_products_db, p => p.code, dbp => dbp.code, (p, dbp) => dbp.price)
                 .Sum();
