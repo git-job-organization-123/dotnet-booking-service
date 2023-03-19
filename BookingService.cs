@@ -108,7 +108,7 @@ namespace BookingService
             };
         }
 
-        public void ValidateCustomer(Customer customer)
+        private static void ValidateCustomer(Customer customer)
         {
             var errors = new Dictionary<string, string>();
 
