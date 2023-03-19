@@ -8,6 +8,8 @@ using System.Collections.ObjectModel;
 using System.ServiceModel.Channels;
 using System.ServiceModel.Description;
 using System.Configuration;
+using System.Text.RegularExpressions;
+using System.Net;
 
 namespace BookingService
 {
@@ -91,10 +93,59 @@ namespace BookingService
 
         public BookingResponse CreateBooking(Booking booking)
         {
+            try
+            {
+                ValidateCustomer(booking.customer);
+            }
+            catch (Exception ex)
+            {
+                throw new WebFaultException<string>(ex.Message, HttpStatusCode.BadRequest);
+            }
+
             return new BookingResponse() {
                 bookingUrl = "bookingUrl",
                 totalPrice = getTotalPrice(booking.products)
             };
+        }
+
+        public void ValidateCustomer(Customer customer)
+        {
+            var errors = new Dictionary<string, string>();
+
+            if (string.IsNullOrWhiteSpace(customer.firstName))
+            {
+                errors.Add("firstName", "Invalid customer first name");
+            }
+
+            if (string.IsNullOrWhiteSpace(customer.lastName))
+            {
+                errors.Add("lastName", "Invalid customer last name");
+            }
+
+            if (string.IsNullOrWhiteSpace(customer.email))
+            {
+                errors.Add("email", "Invalid customer email");
+            }
+            else if (!Regex.IsMatch(customer.email, @"\S+@\S+\.\S+"))
+            {
+                errors.Add("email", "Invalid customer email");
+            }
+
+            if (string.IsNullOrWhiteSpace(customer.phone))
+            {
+                errors.Add("phone", "Invalid customer phone number");
+            }
+            else if (!Regex.IsMatch(customer.phone, @"^\d{10}$"))
+            {
+                errors.Add("phone", "Invalid customer phone number");
+            }
+
+            if (errors.Count > 0) {
+                // May add error logging here
+                
+                string errorMessage = string.Join("\n", errors.Values);
+                throw new Exception(errorMessage);
+            }
         }
 
         // Get DB products with same code as products and sum their price
