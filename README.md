@@ -18,10 +18,10 @@ Add to PATH:
 
 Compile .NET code:
 
-csc /out:BookingService.exe BookingService.cs DataClass\\*.cs
+`csc /out:BookingService.exe BookingService.cs DataClass\\*.cs`
 
 ##
 
 Run BookingService:
 
-BookingService.exe
+`BookingService.exe`
