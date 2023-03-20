@@ -10,6 +10,8 @@ using System.ServiceModel.Description;
 using System.Configuration;
 using System.Text.RegularExpressions;
 using System.Net;
+// using System.Data;
+// using System.Data.SqlClient;
 
 namespace BookingService
 {
@@ -151,6 +153,32 @@ namespace BookingService
                    .Join(_products_db, p => p.code, dbp => dbp.code, (p, dbp) => dbp.price)
                    .Sum();
         }
+
+        // public List<Product> SQLTest()
+        // {
+        //     string connectionString = ConfigurationManager.ConnectionStrings["Database"].ConnectionString;
+        //     using (SqlConnection connection = new SqlConnection(connectionString))
+        //     {
+        //         connection.Open();
+        //         SqlCommand command = new SqlCommand("SELECT * FROM Table", connection);
+        //         SqlDataReader reader = command.ExecuteReader();
+
+        //         List<Product> products = reader.Cast<IDataRecord>()
+        //             .Select(x => new Product
+        //             {
+        //                 // ID = (int)x["ID"],
+        //                 name = (string)x["Name"],
+        //                 code = (string)x["Code"],
+        //                 type = (string)x["Type"],
+        //                 price = (decimal)x["Price"],
+        //             })
+        //             .ToList();
+
+        //         reader.Close();
+
+        //         return products;
+        //     }
+        // }
     }
 
     public class CorsMessageInspector : IDispatchMessageInspector
