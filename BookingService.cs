@@ -93,15 +93,8 @@ namespace BookingService
 
         public BookingResponse CreateBooking(Booking booking)
         {
-            try
-            {
-                ValidateCustomer(booking.customer);
-            }
-            catch (Exception ex)
-            {
-                throw new WebFaultException<string>(ex.Message, HttpStatusCode.Forbidden);
-            }
-
+            ValidateCustomer(booking.customer);
+ 
             return new BookingResponse() {
                 bookingUrl = "bookingUrl",
                 totalPrice = getTotalPrice(booking.products)
@@ -144,7 +137,7 @@ namespace BookingService
                 // May add error logging here
                 
                 string errorMessage = string.Join("\n", errors.Values);
-                throw new Exception(errorMessage);
+                throw new WebFaultException<string>(errorMessage, HttpStatusCode.Forbidden);
             }
         }
 
