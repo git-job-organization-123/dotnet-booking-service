@@ -36,7 +36,8 @@ namespace BookingService
         private static List<Product> _products_db;
 
         // Database simulation
-        public BookingService() {
+        public BookingService()
+        {
             Random random = new Random();
 
             // Services
@@ -95,7 +96,8 @@ namespace BookingService
         {
             ValidateCustomer(booking.customer);
  
-            return new BookingResponse() {
+            return new BookingResponse()
+            {
                 bookingUrl = "bookingUrl",
                 totalPrice = getTotalPrice(booking.products)
             };
@@ -133,7 +135,8 @@ namespace BookingService
                 errors.Add("phone", "Invalid customer phone number");
             }
 
-            if (errors.Count > 0) {
+            if (errors.Count > 0)
+            {
                 // May add error logging here
                 
                 string errorMessage = string.Join("\n", errors.Values);
@@ -142,10 +145,11 @@ namespace BookingService
         }
 
         // Get DB products with same code as products and sum their price
-        private static decimal getTotalPrice(List<Product> products) {
+        private static decimal getTotalPrice(List<Product> products)
+        {
             return products
-                .Join(_products_db, p => p.code, dbp => dbp.code, (p, dbp) => dbp.price)
-                .Sum();
+                   .Join(_products_db, p => p.code, dbp => dbp.code, (p, dbp) => dbp.price)
+                   .Sum();
         }
     }
 
