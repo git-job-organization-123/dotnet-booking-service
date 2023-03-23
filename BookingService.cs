@@ -10,8 +10,11 @@ using System.ServiceModel.Description;
 using System.Configuration;
 using System.Text.RegularExpressions;
 using System.Net;
-// using System.Data;
-// using System.Data.SqlClient;
+using System.Data;
+using System.Data.SqlClient;
+
+// Custom .dll
+using System.Data.SQLite;
 
 namespace BookingService
 {
@@ -35,43 +38,7 @@ namespace BookingService
     [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single, Name = "BookingService")] // Allow constructor calling
     public class BookingService : IBookingService
     {
-        private static List<Product> _products_db;
-
-        // Database simulation
-        public BookingService()
-        {
-            Random random = new Random();
-
-            // Services
-            _products_db = new List<Product>()
-            {
-                new Product { name = "Spa Treatment", type = "Service", price = 50, code = GenerateProductCode() },
-                new Product { name = "Room Service", type = "Service", price = 20, code = GenerateProductCode() },
-                new Product { name = "Airport Transfer", type = "Service", price = 30, code = GenerateProductCode() },
-                new Product { name = "Personal Shopper", type = "Service", price = 60, code = GenerateProductCode() },
-                new Product { name = "Laundry and Dry Cleaning", type = "Service", price = 25, code = GenerateProductCode() },
-                new Product { name = "Fitness Center Access", type = "Service", price = 10, code = GenerateProductCode() },
-                new Product { name = "Sightseeing Tour", type = "Service", price = 40, code = GenerateProductCode() },
-                new Product { name = "Golf Course Access", type = "Service", price = 70, code = GenerateProductCode() },
-                new Product { name = "Pet Care", type = "Service", price = 15, code = GenerateProductCode() },
-                new Product { name = "Baby-sitting Service", type = "Service", price = 35, code = GenerateProductCode() }
-            };
-
-            // Accommodations
-            for (int i = 0; i < 11; i++)
-            {
-                _products_db.Add(new Product()
-                {
-                    imageSrc = "https://via.placeholder.com/150x150",
-                    name = "Name " + i,
-                    type = "Accommodation",
-                    description = "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-                    price = Math.Floor((decimal)(random.NextDouble() * 100)) + 1,
-                    code = GenerateProductCode(),
-                    services = GetServices()
-                });
-            }
-        }
+        public BookingService() {}
 
         private static int index = 0;
 
@@ -84,14 +51,43 @@ namespace BookingService
         // OPTIONS
         public void HandleHttpOptionsRequest() {}
 
-        private List<Product> GetServices()
+        private List<Product> GetProducts()
         {
-            return _products_db.Where(p => p.type == "Service").ToList();
+            string connectionString = @"Data Source=mydb.db;Version=3;";
+            using (SQLiteConnection connection = new SQLiteConnection(connectionString))
+            {
+                connection.Open();
+
+                SQLiteCommand command = new SQLiteCommand("SELECT * FROM products", connection);
+                SQLiteDataReader reader = command.ExecuteReader();
+                List<Product> products = reader.Cast<IDataRecord>()
+                    .Select(p => new Product
+                    {
+                        name = (string)p["name"],
+                        code = (string)p["code"],
+                        type = (string)p["type"],
+                        description = (string)p["description"],
+                        imageSrc = (string)p["imageSrc"],
+                        price = (decimal)p["price"],
+                    })
+                    .ToList();
+
+              return products;
+            }
         }
 
         public List<Product> GetAccommodations()
         {
-            return _products_db.Where(p => p.type == "Accommodation").ToList();
+            List<Product> products = GetProducts();
+
+            List<Product> accommodations = products.Where(p => p.type == "Accommodation").ToList();
+
+            // Get services
+            accommodations.ForEach(a => {
+              a.services = products.Where(p => p.type == "Service").ToList();
+            });
+
+            return accommodations;
         }
 
         public BookingResponse CreateBooking(Booking booking)
@@ -147,13 +143,16 @@ namespace BookingService
         }
 
         // Get DB products with same code as products and sum their price
-        private static decimal getTotalPrice(List<Product> products)
+        private decimal getTotalPrice(List<Product> products)
         {
+            List<Product> _products_db = GetProducts();
+
             return products
                    .Join(_products_db, p => p.code, dbp => dbp.code, (p, dbp) => dbp.price)
                    .Sum();
         }
 
+        // Microsoft SQL
         // public List<Product> SQLTest()
         // {
         //     string connectionString = ConfigurationManager.ConnectionStrings["Database"].ConnectionString;
