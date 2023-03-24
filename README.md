@@ -8,7 +8,7 @@ The service uses Windows Communication Foundation (WCF) framework and SQLite.
 
 Download .NET SDK:
 
-`https://dotnet.microsoft.com/en-us/download`
+https://dotnet.microsoft.com/en-us/download
 
 Install it.
 
